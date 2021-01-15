@@ -152,15 +152,29 @@ previsoes_enos <- readLines(prev_file)
 # linha que contém Jul 2020
 (jul_in <- grep(pattern = "Jul 2020", x = previsoes_enos))
 
+# nomes para as variáveis
+ nomes_exer2 <- c("JJA", "JAS", "ASO", "SON", "OND", "NDJ", "DJF", "JFM",  "FMA",
+"tipo_modelo", "modelo")
+
+ (nomes_exer2)
+ 
+# Importando o arquivo
 prev_enos_jun2020 <- import(prev_file,
                             fread = TRUE, # leitura rápida
                             header = FALSE,
                             skip = 6128,
-                            fill=TRUE,
+                            #fill=TRUE,
                             dec = ".",
                             na.strings = "-999",
-                            nrows = 6159 
+                            nrows = 6156, 
+                            stringsAsFactors = FALSE
 )
+
+names(prev_enos_jun2020) <- nomes_exer2
+
+(head(prev_enos_jun2020)) 
+ 
+ 
 ```
 
 
@@ -169,15 +183,19 @@ prev_enos_jun2020 <- import(prev_file,
 
 
 ```{r}
-# Escrevendo no formato xlsx
-#library(WriteXLS)
-#arquivo_xls_temp <- file.path(getwd(), "previsoes-enos")
 
-#WriteXLS(x = previsoes_enos_jun2020, ExcelFileName = arquivo_xls_temp)
+library(WriteXLS)
+arq_xls_exer3 <- file.path(getwd(), "previsoes-enos.xlsx")
 
-#file.exists(arquivo_xls_temp)
+(file.exists(arq_xls_exer3))
 
-#WriteXLS(x = previsoes_enos_jun2020, ExcelFileName = )
+# escrevendo o arquivo em xlsx
+tempos_escrita_xlsx <- microbenchmark(
+  writexl = write_xlsx(prev_enos_jun2020, arq_xls_exer3),
+  openxlsx = write.xlsx(prev_enos_jun2020, arq_xls_exer3),
+  times = 1)
+# tempo para escrever
+(tempos_escrita_xlsx)
 
 ```
 
@@ -185,8 +203,10 @@ prev_enos_jun2020 <- import(prev_file,
 
 
 ```{r}
+
 # verificando se o arquivo existe
-#(file.exists(previsoes-enos.xlsx))
+(file.exists("previsoes-enos.xlsx"))
+
 ```
 
    c. Importe no R o arquivo `previsoes-enos.xlsx` e mostre a estrutura dos dados importados.
@@ -209,6 +229,12 @@ prev_enos_jun2020 <- import(prev_file,
 ```
 
 ```{r}
+
+imp_xlxs  <- import(file = "previsoes-enos.xlsx", col_names = TRUE)
+
+(head(imp_xlxs))
+
+(str(imp_xlxs))
 
 ```
 
