@@ -29,6 +29,10 @@ libraries(pacotes)
 
 
 
+### Alguns comandos foram comentados para gerar (ou tentar gerar) o html. Desde que as questões com problemas envolvendo conversão NetCdf para data frame o R passou a travar e não gerar o html, ele fica horas processando até congelar e parar de responder.
+
+
+
 ## Exercícios
 
 
@@ -695,10 +699,10 @@ url_prec_nc <- "https://utexas.app.box.com/v/Xavier-etal-IJOC-DATA?page=2/prec_d
 
 file_prec_nc <- file.path(getwd(), "prec_daily_UT_Brazil_v2.2_20100101_20151231.nc")
 
-download.file(
-  url = url_prec_nc,
-  destfile = file_prec_nc
-)
+#download.file(
+#  url = url_prec_nc,
+#  destfile = file_prec_nc
+#)
 
 (file.exists(file_prec_nc))
 
