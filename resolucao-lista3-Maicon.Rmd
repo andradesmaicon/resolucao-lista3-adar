@@ -25,7 +25,6 @@ pacotes <- c(
 library(easypackages)
 libraries(pacotes)
 
-
 ```
 
 
@@ -377,19 +376,28 @@ tibble [730 x 183] (S3: tbl_df/tbl/data.frame)
 6. a. Utilizando o R, faça o *download* [deste arquivo netCDF](https://www.dropbox.com/s/w3wp6iwxqex95ep/S_America_model_wtd_v2.nc?dl=1) com dados de profundidade do lençol freático para a América do Sul.
 
 ```{r}
-# url do arquivo
+# link do arquivo
 url_ams_len <- "https://www.dropbox.com/s/w3wp6iwxqex95ep/S_America_model_wtd_v2.nc?dl=1"
 
 file_ams_nc <- file.path(getwd(), "ams_model.nc")
 
-# download do arquivo
+# download dos dados
 #download.file(
 #  url = url_ams_len,
 #  destfile = file_ams_nc,
 #)
 
-# verificando se o arquivo existe
+# verifica a existencia do arquivo
 file.exists(file_ams_nc)
+
+# abre o arquivo NetCDF
+nc_in <- nc_open(filename = file_ams_nc)
+
+# classe
+class(nc_in)
+
+print(nc_in)
+
 ```
 
    b. Descubra  o(s) nome(s) e a(s) unidades da(s) variável(is) armazenada(s) no arquivo netCDF usando o pacote **ncdf4**. A resposta desta questão são dois vetores do tipo caractere, um com cada informação: `var_name` e `var_unidade`.
@@ -422,13 +430,12 @@ dados_ncdf_raster <- brick(file_ams_nc)
    
 ```{r}
 # convertendo em data frame
-#data_frame_nc <- as.data.frame(
-#  x = dados_ncdf_raster,
-#  xy = TRUE,
-#  na.rm = TRUE
-#)
+data_frame_nc <- as.data.frame(
+  x = dados_ncdf_raster,
+  xy = TRUE,
+  na.rm = TRUE
+)
 
-# (data_frame_nc[1:3,])
 
 ```
 
@@ -437,28 +444,28 @@ dados_ncdf_raster <- brick(file_ams_nc)
 
 ```{r}
 # definindo novos nomes
-#names_new <- c("wtd","lon", "lat")
+names_new <- c("wtd","lon", "lat")
 
 # aplicando novos nomes no data frame
-#names(data_frame_nc) <- names_new
+names(data_frame_nc) <- names_new
+(head(data_frame_nc))
+
 ```
 
 
    f. Compare as dimensões do *quadro de dados* com as dimensões do objeto importado como raster. Por que o número de linhas do *quadro de dados* não corresponde ao número de células do raster? Comente sua resposta.
 
 ```{r}
-# Dimensão do data frame
-#(dim(data_frame_nc))
+# dimensão do quadro de dados
+(dim(data_frame_nc))
 
-# Dimensão do arquivo raster
-#(dim(dados_ncdf_raster))
+# dimensão do arquivo raster
+(dim(dados_ncdf_raster))
 
 # O número de linhas do quadro de dados não corresponde ao número de células do 
 # raster porque quando especificou-se "na.rm = TRUE" os dados faltantes, NAs, são
 # ignorados e não são salvos no quadro de dados
 
-#nc_close(nc_in)
-#nc_close(dados_ncdf_raster)
 
 ```
 
@@ -561,7 +568,7 @@ class(dat_q7_xls)
    g. Interprete a saída da `glimpse()` do pacote **dplyr** aplicada aos dados importados. O resultado parece com o de alguma outra função que você já conhece, qual?
 
 ```{r}
-#(glimpse(dat_q7_xls))
+(glimpse(dat_q7_xls))
 
 # A função glimpse() é parecida com a função print(), ela possibilita ver todas
 # as colunas em um data frame, além disso ela também é semelhante a função str(),
@@ -621,10 +628,11 @@ file_inmet_excel <- file.path(
   "Temperatura-Maxima_NCB_1961-1990.xls"
 )
 # Download do arquivo
-download.file(
-  url = link_inmet_xls,
-  destfile = file_inmet_excel
-)
+#download.file(
+#  url = link_inmet_xls,
+#  destfile = file_inmet_excel
+#)
+
 # importando o arquivo
 inmet_temp_min <- import(
   file = file_inmet_excel,
@@ -656,28 +664,68 @@ inmet_temp_min[, -c(1:3)] <- apply(inmet_temp_min[,-c(1:3)], 2, as.numeric)
    a. Importe os dados para o R, converta-os para *data frame* e verifique o número de colunas e linhas resultantes. 
 
 ```{r}
-# url do arquivo
+
 url_prec_nc <- "https://utexas.app.box.com/v/Xavier-etal-IJOC-DATA?page=2/prec_daily_UT_Brazil_v2.2_20100101_20151231.nc"
 
 file_prec_nc <- file.path(getwd(), "prec_daily_UT_Brazil_v2.2_20100101_20151231.nc")
 
-# Download do arquivo
-#download.file(
-#  url = url_prec_nc,
-#  destfile = file_prec_nc,
-#)
+download.file(
+  url = url_prec_nc,
+  destfile = file_prec_nc
+)
 
-# verificando se o arquivo existe
 (file.exists(file_prec_nc))
 
-# importando o arquivo netcdf através do pacote raster
 dat_prec_raster <- brick(file_prec_nc)
 print(dat_prec_raster)
+
+dat_prec_xy_v <- as.data.frame(
+  x = dat_prec_raster,
+  xy = TRUE,
+  na.rm = TRUE
+)
+
 
 ```
 
    b. Compare as dimensões do *quadro de dados* com as dimensões do objeto importado, o número de linhas e de colunas do *quadro de dados* correspondem a quais propriedades ou dimensões do objeto importado? Faça essa comparação usando os diferentes valores lógicos para os argumentos `na.rm` e `xy`.
 
 ```{r}
-# sua resposta aqui
+
+dat_prec_xy_f <- as.data.frame(
+  x = dat_prec_raster,
+  xy = FALSE,
+  na.rm = TRUE
+)
+
+# xy = TRUE e na.rm = FALSE
+dat_prec_xy_fse <- as.data.frame(
+  x = dat_prec_raster,
+  xy = TRUE,
+  na.rm = FALSE
+)
+
+# xy = FALSE e na.rm = FALSE
+dat_prec_xy_FF <- as.data.frame(
+  x = dat_prec_raster,
+  xy = FALSE,
+  na.rm = FALSE
+)
+
+# dimensão do arquivo raster
+(dim(dat_prec_raster))
+# dimensão do data frame com xy = TRUE e na.rm = TRUE
+(dim(dat_prec_xy_v))
+# dimensão do data frame com xy = FALSE e na.rm = TRUE
+(dim(dat_prec_xy_f))
+# dimensão do data frame com xy = TRUE e na.rm = FALSE
+(dim(dat_prec_xy_fse))
+# dimensão do data frame com xy = FALSE e na.rm = FALSE
+(dim(dat_prec_xy_FF))
+
+# O arquivo raster tem 162 linhas, 168 colunas e 2191 camadas. Quando definimos
+# xy = TRUE e na.rm = FALSE o número de linhas do data frame é definido como
+# 162 x 168, o número de colunas é definido pelo número de camadas do arquivo 
+# raster, se xy = FALSE, o número de colunas é idêntico ao de camadas, 2191,
+# caso contrário será maior.
 ```
