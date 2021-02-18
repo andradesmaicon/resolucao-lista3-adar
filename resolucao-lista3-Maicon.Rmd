@@ -5,6 +5,16 @@ date: "15/01/2021"
 output: html_document
 ---
 
+
+>JDT: Nome do arquivo não segue o padrão solicitado:
+`lista3-adar-NomedoAluno.Rmd`. 
+
+```{r}
+# incluindo penalização 
+pg <- 0.05
+```
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -31,7 +41,7 @@ libraries(pacotes)
 
 ### Alguns comandos foram comentados para gerar (ou tentar gerar) o html. Desde que as questões com problemas envolvendo conversão NetCdf para data frame o R passou a travar e não gerar o html, ele fica horas processando até congelar e parar de responder.
 
-
+> Somente no caso do NetCDF isso é acetitável. Nos demais caso não há justificativa. Visto que há argumentos no chunck para definir se avalia, imprime ou mostra só resultados do chunck.
 
 ## Exercícios
 
@@ -56,10 +66,10 @@ amm_file <- file.path(
   "dados-amm.csv"
 )
 # Download do arquivo
-#download.file(
-#  url = amm_url,
-#  destfile = amm_file
-#)
+download.file(
+  url = amm_url,
+  destfile = amm_file
+)
 # verificando se o arquivo existe
 (file.exists(amm_file))
 
@@ -74,12 +84,23 @@ dados_vento <- import(amm_file,
                 na.strings = "" # rótulo para dados faltantes
 ) 
 # primeiras linhas do arquivo
-(head(dados_vento))
+head(dados_vento)
+tail(dados_vento)
 # estrutura do arquivo
 (str(dados_vento))
+
+#! solução em uma linha
+#! str(import(amm_url, format = "tsv"))
 ```
+> Poderia usar diretamete o código comentado. Menos código, mais legibilidade.
+> O primeiro passo ao importar dados é identificar o formato. Neste casos os valores são separados por tab. Consultando o help da `rio::`import` ou a tabela dada no livro veria que o formato é `tsv`.
 
-
+```{r jdt-correcao1, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p1 <- 0.05
+# nota questão 1
+(nq1 <- 1 - p1)
+```
 
 2. a. Leia os dados texto não estruturados disponíveis em
 https://iri.columbia.edu/~forecast/ensofcst/Data/ensofcst_ALLto0520 e salve-os em um arquivo texto nomeado `previsoes-enos.txt`, mantendo a formatação original dos dados.
@@ -150,7 +171,7 @@ previsoes_enos <- readLines(prev_file)
 ```
 
 
-```{r}
+```{r, error = TRUE}
 # linha que contém Jun 2020
 (jun_in <- grep(pattern = "Jun 2020", x = previsoes_enos))
 # linha que contém Jul 2020
@@ -181,7 +202,32 @@ names(prev_enos_jun2020) <- nomes_exer2
  
 ```
 
+>JDT: erro na (d), os dados são formatos em formato de largura fixa. Não consegui importar usando seu código ocorre erro. `Error in fread(dec = ".", skip = 6128, na.strings = "-999", nrows = 6156, : skip=6128 but the input only has 2232 lines`. Justamente porque os dados não possuem separador em alguns casos.
 
+> Seu [html](https://github.com/andradesmaicon/resolucao-lista3-adar/blob/main/resolucao-lista3-Maicon.html) também não mostra o resultado da importação.
+
+```{r}
+prev_enos_jun2020 <- import(
+  file = prev_file,
+  format = "fwf", 
+  skip = lin_ini + 2, 
+  header = FALSE, 
+  widths = c(rep(4, 9), 3, 10), # largura dos campos das variáveis
+  na.strings = "-999", # string para dados faltantes
+  col.names = c("JJA", "JAS", "ASO", "SON", "OND", "NDJ", "DJF", "JFM", "FMA", "tipo_modelo", "modelo")
+)[1:24,]
+#prev_enos_jun2020 <- head(prev_enos_jun2020, -1)
+prev_enos_jun2020 <- mutate_at(prev_enos_jun2020, vars(JJA:FMA), as.numeric) 
+str(prev_enos_jun2020)
+#View(prev_enos_jun2020)
+```
+
+```{r jdt-correcao2, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p2 <- 0.25
+# nota questão 1
+(nq2 <- 1 - p2)
+```
 
 3. a. Escreva o quadro de dados do [último item](#enosdf) da questão anterior em um arquivo excel no **formato `xlsx`** e nomeado `previsoes-enos.xlsx`. 
 
@@ -193,6 +239,7 @@ arq_xls_exer3 <- file.path(getwd(), "previsoes-enos.xlsx")
 
 (file.exists(arq_xls_exer3))
 
+#! Não foi pedido isso
 # escrevendo o arquivo em xlsx
 tempos_escrita_xlsx <- microbenchmark(
   writexl = write_xlsx(prev_enos_jun2020, arq_xls_exer3),
@@ -243,6 +290,16 @@ imp_xlxs  <- import(file = "previsoes-enos.xlsx", col_names = TRUE)
 ```
 
 
+>JDT: irreproduzível seus códigos por não ter importado corretamente os dados
+na 2d. O que me impossibilita de avaliar. Consultando seu [html](https://github.com/andradesmaicon/resolucao-lista3-adar/blob/main/resolucao-lista3-Maicon.html) verifica-se que ele não condiz tal qual o .Rmd. O que não é aceitável, pois deve se origina do outro. 
+
+```{r jdt-correcao3, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p3 <- 0.5
+# nota questão 1
+(nq3 <- 1 - p3)
+```
+
 
 4. Importe os dados da Oscilação Antártica disponível neste [link](https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/aao/monthly.aao.index.b79.current.ascii.table). A estrutura esperada dos dados importados é:
 
@@ -264,7 +321,7 @@ imp_xlxs  <- import(file = "previsoes-enos.xlsx", col_names = TRUE)
  $ Dec: num  -0.951 -0.356 1.116 -1.934 0.475 ...
 ```
 
-```{r}
+```{r, error = TRUE}
 # url do arquivo
 url_dados_ant <- "https://www.cpc.ncep.noaa.gov/products/precip/CWlink/daily_ao_index/aao/monthly.aao.index.b79.current.ascii.table"
 # arquivo temporário para salvar o aquivo baixado
@@ -273,10 +330,10 @@ file_ant <- file.path(
   "dados-antartica.txt"
 )
 # Download do arquivo
-#download.file(
-#  url = url_dados_ant,
-#  destfile = file_ant
-#)
+download.file(
+ url = url_dados_ant,
+ destfile = file_ant
+)
 # verificando se o arquivo existe
 (file.exists(file_ant))
 
@@ -300,10 +357,16 @@ names(aao) <- nomes
 (head(aao))
 # estrutura
 (str(aao))
-
+## erro que ocorreu ao rodar seu código
+# Error in scan(file = file, what = what, sep = sep, quote = quote, dec = dec, : line 43 did not have 13 elements
 ```
 
-
+```{r jdt-correcao4, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p4 <- 1
+# nota questão 1
+(nq4 <- 1 - p4)
+```
 
 5. a. Faça o download [deste arquivo](https://www.dropbox.com/s/4hc7x9s8pmfz7gq/_SS_ANNN_CITY_NAME_pressao_inst_max_min_vento_velo_dir_raja_radiacao_precipitacao_horario.xls?raw=1) Excel.
 
@@ -324,6 +387,7 @@ file_mapa <- file.path(
 
    b.  Abra o arquivo e procure entender como estão organizados os dados. Responda: (i) o que significa cada coluna e cada linha em termos de variáveis e observações para este conjunto de dados horários medidas meteorológicas; (ii) quantas variáveis meteorológicas contém esta tabela de dados? (iii) O número de observações horárias (para cada dia) é o mesmo para todas variáveis?
 
+>JDT: Suas respostas deveriam estar como texto neste Rmd não como comentários de código. Ademais estão idênticas à do Ignazio. Zero para os 2.
 
 ```{r}
 # (I) Cada coluna do arquivo apresenta o registro horário para uma determinada 
@@ -343,7 +407,7 @@ file_mapa <- file.path(
 inmet_SM <- import(
   file = file_mapa,
   col_names = FALSE,
-  skip = 10
+  skip = 10 # após! não inclui ela!
 )
 
 (head(inmet_SM[1:5]))
@@ -401,7 +465,16 @@ tibble [730 x 183] (S3: tbl_df/tbl/data.frame)
 # sua resposta aqui
 ```
 
-   
+
+
+
+```{r jdt-correcao5, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p5 <- 0.5 + 0.05
+# nota questão 1
+(nq5 <- 1 - p5)
+```
+
 
 6. a. Utilizando o R, faça o *download* [deste arquivo netCDF](https://www.dropbox.com/s/w3wp6iwxqex95ep/S_America_model_wtd_v2.nc?dl=1) com dados de profundidade do lençol freático para a América do Sul.
 
@@ -410,17 +483,24 @@ tibble [730 x 183] (S3: tbl_df/tbl/data.frame)
 url_ams_len <- "https://www.dropbox.com/s/w3wp6iwxqex95ep/S_America_model_wtd_v2.nc?dl=1"
 
 file_ams_nc <- file.path(getwd(), "ams_model.nc")
+```
 
+```{r, eval = FALSE}
 # download dos dados
-#download.file(
-#  url = url_ams_len,
-#  destfile = file_ams_nc,
-#)
+download.file(
+ url = url_ams_len,
+ destfile = file_ams_nc,
+)
+```
 
+```{r}
+# para avaliacao
+file_ams_nc <- "S_America_model_wtd_v2.nc"
 # verifica a existencia do arquivo
 file.exists(file_ams_nc)
 
 # abre o arquivo NetCDF
+
 nc_in <- nc_open(filename = file_ams_nc)
 
 # classe
@@ -435,7 +515,7 @@ print(nc_in)
 ```{r}
 # abre o arquivo NetCDF
 nc_in <- nc_open(filename = file_ams_nc)
-print(nc_in)
+#print(nc_in)
 
 class(nc_in)
 # modo
@@ -458,7 +538,7 @@ dados_ncdf_raster <- brick(file_ams_nc)
 
    d. Converta os dados importados em um quadro de dados (*data frame*) incluindo as coordenadas das células do raster e ignorando as células sem informação (oceanos). 
    
-```{r}
+```{r, eval  = FALSE}
 # convertendo em data frame
 data_frame_nc <- as.data.frame(
   x = dados_ncdf_raster,
@@ -472,7 +552,7 @@ data_frame_nc <- as.data.frame(
 
    e. Altere os nomes das colunas do quadro de dados para "wtd", "lon", "lat"
 
-```{r}
+```{r, eval  = FALSE}
 # definindo novos nomes
 names_new <- c("wtd","lon", "lat")
 
@@ -485,7 +565,7 @@ names(data_frame_nc) <- names_new
 
    f. Compare as dimensões do *quadro de dados* com as dimensões do objeto importado como raster. Por que o número de linhas do *quadro de dados* não corresponde ao número de células do raster? Comente sua resposta.
 
-```{r}
+```{r, eval  = FALSE}
 # dimensão do quadro de dados
 (dim(data_frame_nc))
 
@@ -498,15 +578,21 @@ names(data_frame_nc) <- names_new
 
 
 ```
+> Você não compreendeu para que serve comentários em código. Seu comentário responde a pergunta do exercício. Isto deveria estar como TEXTO.
 
-
+```{r jdt-correcao6, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p6 <- 0.05
+# nota questão 
+(nq6 <- 1 - p6)
+```
 
 7. a. Importe da *web* diretamente para o R os dados do índice multivariado em tempo real da Oscilação de Madden-Julian disponível em http://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt.
 
 ```{r}
 link_arq_q7 <- "http://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt"
 
-browseURL(url = link_arq_q7)
+#browseURL(url = link_arq_q7)# isso é um efeito colateral que não foi pedido na questão - não se deve colocar códigos com efeitos colaterais. Neste caso deixe comentado.
 
 
 dat_rmm <- import(link_arq_q7,
@@ -535,7 +621,11 @@ nome_vars_7 <- scan(
     skip = 1, # pula 3 linhas
     nmax = 8 # num. max. de campos a serem lidos
 )
-(nome_vars_7)
+(nome_vars_7) # parenteses sao desnecessarios se digita o nome da variavel
+
+# SÓ FALTOU
+#nome_vars_7 <- gsub(",|\\.", "", nome_vars_7)
+#(nome_vars_7 <- gsub("Missing", "status", tolower(nome_vars_7)))
 
 # definindo novos nomes para as variáveis
 new_vars_name <- c("year", "month", "day",  "RMM1",  "RMM2",  "phase",  "amplitude", "status")
@@ -578,10 +668,12 @@ class(dat_q7_xls)
 
 ```{r}
 # primeiras 10 linhas
-(dat_q7_xls[1:10,])
+(dat_q7_xls[1:10,]) # head(dat_q7_xls, 10)
 
 # 10 últimas linhas
-(dat_q7_xls[17020:17029,])
+(dat_q7_xls[17020:17029,]) # tail(dat_q7_xls, 10)
+# de onde saíram estes números? pense como programador!
+(dat_q7_xls[(nrow(dat_q7_xls) - 10) : nrow(dat_q7_xls),])
 ```
 
     
@@ -590,7 +682,7 @@ class(dat_q7_xls)
 ```{r}
 # através do comando dim ou do comando str pode-se ver quantas linhas e colunas
 # possui a tabela de dados.
-(dim(dat_q7_xls))
+(dim(dat_q7_xls)) # nrow(dat_q7_xls); ncol(dat_q7_xls)
 # ou
 (str(dat_q7_xls))
 ```
@@ -605,7 +697,14 @@ class(dat_q7_xls)
 # possibilitando visualizar também como é a estrutura dos dados.
 ```
 
+> `glimpse()` é análoga a `str()`; nada tem a ver com a print
 
+```{r jdt-correcao7, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p7 <- 0.5* 1/7 + 0.5 * 1/7 + 0.5 * 1/7
+# nota questão 1
+(nq7 <- 1 - p7)
+```
 
 8. Importe as **anomalias padronizadas** dos dados do [SOI](http://www.cpc.ncep.noaa.gov/data/indices/soi) (2ª tabela, linhas após  \"STANDARDIZED    DATA\"). Veja [esta seção do livro](https://lhmet.github.io/adar-ebook/arquivos-texto.html#arquivos-texto-n%C3%A3o-estruturados) para detalhes. Mostre as primeiras e as últimas linhas dos dados importados.
 
@@ -639,6 +738,12 @@ data_sea <- import(
 
 ```
 
+```{r jdt-correcao8, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p8 <- 0
+# nota questão 
+(nq8 <- 1 - p8)
+```
 
 
 9. Importe no R o arquivo excel com a climatologia das temperaturas mínimas do INMET no período de 1981-2010, disponível
@@ -658,10 +763,10 @@ file_inmet_excel <- file.path(
   "Temperatura-Maxima_NCB_1961-1990.xls"
 )
 # Download do arquivo
-#download.file(
-#  url = link_inmet_xls,
-#  destfile = file_inmet_excel
-#)
+download.file(
+  url = link_inmet_xls,
+  destfile = file_inmet_excel
+)
 
 # importando o arquivo
 inmet_temp_min <- import(
@@ -686,23 +791,29 @@ inmet_temp_min[, -c(1:3)] <- apply(inmet_temp_min[,-c(1:3)], 2, as.numeric)
 
 ```
 
-
+```{r jdt-correcao9, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p9 <- 0
+# nota questão 
+(nq9 <- 1 - p9)
+```
 
 10. Faça *download* de dados gradeados de precipitação diário para todo Brasil com resolução horizontal de 0,25° (arquivo `prec_daily_UT_Brazil_v2.2_20100101_20151231.nc`), disponível em https://utexas.app.box.com/v/Xavier-etal-IJOC-DATA. Navegue pelas páginas até encontrar o arquivo NetCDF. 
 
    
    a. Importe os dados para o R, converta-os para *data frame* e verifique o número de colunas e linhas resultantes. 
 
-```{r}
+```{r, eval = FALSE}
 
 url_prec_nc <- "https://utexas.app.box.com/v/Xavier-etal-IJOC-DATA?page=2/prec_daily_UT_Brazil_v2.2_20100101_20151231.nc"
 
 file_prec_nc <- file.path(getwd(), "prec_daily_UT_Brazil_v2.2_20100101_20151231.nc")
 
-#download.file(
-#  url = url_prec_nc,
-#  destfile = file_prec_nc
-#)
+## Isto não funciona!!!
+# download.file(
+#   url = url_prec_nc,
+#   destfile = file_prec_nc
+# )
 
 (file.exists(file_prec_nc))
 
@@ -720,7 +831,7 @@ dat_prec_xy_v <- as.data.frame(
 
    b. Compare as dimensões do *quadro de dados* com as dimensões do objeto importado, o número de linhas e de colunas do *quadro de dados* correspondem a quais propriedades ou dimensões do objeto importado? Faça essa comparação usando os diferentes valores lógicos para os argumentos `na.rm` e `xy`.
 
-```{r}
+```{r, eval = FALSE}
 
 dat_prec_xy_f <- as.data.frame(
   x = dat_prec_raster,
@@ -758,4 +869,26 @@ dat_prec_xy_FF <- as.data.frame(
 # 162 x 168, o número de colunas é definido pelo número de camadas do arquivo 
 # raster, se xy = FALSE, o número de colunas é idêntico ao de camadas, 2191,
 # caso contrário será maior.
+```
+
+
+> Resposta da pergunta colocada como comentário dentro do código. É justamente por isso que solicitei a entrega em RMarkdown. Para colocar o texto no corpo do documento e não em chuncks.
+
+
+```{r jdt-correcao10, echo = FALSE, comment="JDT>"}
+# penalizacoes
+p10 <- 0.1
+# nota questão 
+(nq10 <- 1 - p10)
+```
+
+
+```{r jdt-nota-final, comment = "JDT>", echo=FALSE}
+# requer conexão de internet
+source("https://gist.githubusercontent.com/lhmet/3ddfc43bcf796c81ecfd9bb93f5f5dc2/raw/b489a6bb4d948472afa5068256b7869a7997e109/aux-funs-list-correction")
+coleta_notas
+# verificação de autoria
+nota <- round((sum(coleta_notas)/length(coleta_notas) * 10), 1)
+message("Nota: ", nota)
+
 ```
